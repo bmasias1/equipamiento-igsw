@@ -11,8 +11,9 @@ public class Equipamiento {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	int id;
 	
-	int numeroSerie, numeroInventario, estado;
-	String nombre, descripcion, tipo, marca, modelo, area;
+	private int numeroSerie, numeroInventario, estado;
+	private String nombre, descripcion, tipo, marca, modelo, area;
+
 	public int getId() {
 		return id;
 	}
@@ -73,5 +74,4 @@ public class Equipamiento {
 	public void setArea(String area) {
 		this.area = area;
 	}
-
 }

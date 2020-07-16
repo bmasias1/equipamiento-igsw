@@ -1,48 +1,72 @@
 package com.rocket.main.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.rocket.main.dao.EquipamientoRepository;
 import com.rocket.main.model.Equipamiento;
+import com.rocket.main.model.Reserva;
+import org.springframework.web.client.RestTemplate;
 
 @RestController
+@RequestMapping(path = "/equipamiento")
 public class EquipamientoController {
 	@Autowired
 	EquipamientoRepository equipamientoRepository;
-	
-	@GetMapping("/equipamiento")
+
+	public int getEstado(int equipamientoId) {
+		// Modificar con URI del microservicio Reservas
+		final String uri = "https://api.agify.io/?name={name}";
+		// final String uri = "https://example.com/{name}";
+
+		// Modificar parametros necesarios, como el id del equipamiento
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("name", "michel");
+		//params.put("id", equipamientoId);
+
+		RestTemplate restTemplate = new RestTemplate();
+		try {
+			// Modificar campos de reserva en el modelo
+			Reserva reserva = restTemplate.getForObject(uri, Reserva.class, params);
+			return reserva.getCount();
+		} catch (Exception e) {
+			// Si la solicitud no funciona, el estado se asume como disponible
+			return 0;
+		}
+	}
+
+	@GetMapping(path={"/", ""}, produces="application/json")
 	public List<Equipamiento> getAll() {
-		return equipamientoRepository.findAll();
+		List<Equipamiento> equipamientos = equipamientoRepository.findAll();
+		equipamientos.forEach((equipamiento -> equipamiento.setEstado(getEstado(equipamiento.getId()))));
+		return equipamientos;
 	}
-	
-	@GetMapping("/equipamiento/{id}")
-	public Equipamiento getById(int id) {
-		return equipamientoRepository.findById(id).orElse(null);
+
+	@GetMapping(path="/{id}", produces="application/json")
+	public Equipamiento getById(@PathVariable int id) {
+		Equipamiento equipamiento = equipamientoRepository.findById(id).orElse(null);
+		if (equipamiento != null) {
+			equipamiento.setEstado(getEstado(equipamiento.getId()));
+		}
+		return equipamiento;
 	}
-	
-	@PostMapping("/equipamiento")
-	public Equipamiento add(Equipamiento equipamiento) {
+
+	@PostMapping(path={"/", ""},  consumes="application/json", produces="application/json")
+	public Equipamiento add(@RequestBody Equipamiento equipamiento) {
 		return equipamientoRepository.save(equipamiento);
 	}
-	
-	/*
-	 * Indeed, updating and inserting elements has the same behavior because if the object doesn't exist,
-	 * it will put on a new record (unless we agree to do not do this)
-	 */
-	@PutMapping("/equipamiento")
-	public Equipamiento update(Equipamiento equipamiento) {
+
+	@PutMapping(path={"/", ""}, consumes="application/json", produces="application/json")
+	public Equipamiento update(@RequestBody Equipamiento equipamiento) {
 		return add(equipamiento);
 	}
 	
-	@DeleteMapping("/equipamiento")
-	public void delete(int id) {
+	@DeleteMapping(path="/{id}")
+	public void delete(@PathVariable int id) {
 		equipamientoRepository.deleteById(id);
 	}
 }
