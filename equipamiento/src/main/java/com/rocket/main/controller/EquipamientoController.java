@@ -13,6 +13,7 @@ import com.rocket.main.model.Reserva;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping(path = "/equipamiento")
 public class EquipamientoController {
 	@Autowired
