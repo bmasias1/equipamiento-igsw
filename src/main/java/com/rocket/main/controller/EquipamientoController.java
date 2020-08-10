@@ -13,7 +13,6 @@ import com.rocket.main.model.Reserva;
 import org.springframework.web.client.RestTemplate;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping(path = "/equipamiento")
 public class EquipamientoController {
 	@Autowired
@@ -40,6 +39,7 @@ public class EquipamientoController {
 		}
 	}
 
+	@CrossOrigin("http://localhost:3000")
 	@GetMapping(path={"/", ""}, produces="application/json")
 	public List<Equipamiento> getAll() {
 		List<Equipamiento> equipamientos = equipamientoRepository.findAll();
@@ -47,6 +47,7 @@ public class EquipamientoController {
 		return equipamientos;
 	}
 
+	@CrossOrigin("http://localhost:3000")
 	@GetMapping(path="/{id}", produces="application/json")
 	public Equipamiento getById(@PathVariable int id) {
 		Equipamiento equipamiento = equipamientoRepository.findById(id).orElse(null);
@@ -56,16 +57,19 @@ public class EquipamientoController {
 		return equipamiento;
 	}
 
+	@CrossOrigin("http://localhost:3000")
 	@PostMapping(path={"/", ""},  consumes="application/json", produces="application/json")
 	public Equipamiento add(@RequestBody Equipamiento equipamiento) {
 		return equipamientoRepository.save(equipamiento);
 	}
 
+	@CrossOrigin("http://localhost:3000")
 	@PutMapping(path={"/", ""}, consumes="application/json", produces="application/json")
 	public Equipamiento update(@RequestBody Equipamiento equipamiento) {
 		return add(equipamiento);
 	}
-	
+
+	@CrossOrigin("http://localhost:3000")
 	@DeleteMapping(path="/{id}")
 	public void delete(@PathVariable int id) {
 		equipamientoRepository.deleteById(id);
